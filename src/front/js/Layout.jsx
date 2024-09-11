@@ -13,6 +13,7 @@ import { Single } from "./pages/Single.jsx";
 import { AddContact } from "./pages/AddContact.jsx";
 import { Contacts } from "./pages/Contacts.jsx";
 import { Login } from "./pages/Login.jsx";
+import { EditContacts } from "./pages/EditContacts.jsx";
 
 
 //Create your first component
@@ -34,6 +35,7 @@ const Layout = () => {
                         <Route element={<AddContact />} path="/add-contact" />
                         <Route element={<Contacts />} path="/contacts" />
                         <Route element={<Login />} path="/login" />
+                        <Route element={<EditContacts />} path="/edit-contact" />
                         <Route element={<h1>Not found!</h1>} path="*" />
 
                     </Routes>

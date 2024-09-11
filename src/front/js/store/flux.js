@@ -20,6 +20,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			agendas: [],
 			singleAgenda: [],
 			username: '',
+			currentContact: {},
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -55,6 +56,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			}, getUsername: (username) => {
 				setStore({ username: username })
 			},
+			setCurrentContact: (contact) => { setStore({ currentContact: contact }) },
 			createAgenda: async (loginData) => {
 				const uri = `${getStore().host}/agendas/${getStore().username}`;
 				const options = {
@@ -89,7 +91,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				console.log('estos son los contacts:', getStore().singleAgenda);
 
 			},
-			AddContact: async (dataToSend) => {
+			addContact: async (dataToSend) => {
 				console.log('Este es el  username en add contact:', getStore().username);
 
 				if (!getStore().username) {
@@ -114,8 +116,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const data = await response.json();
 				getActions().getContacts(getStore().username);
 			},
-			editContact: async (id, dataToSend) => {
-				const uri = `${getStore().host}/${username}/contacts/${id}`;
+			editContacts: async (id, dataToSend) => {
+
+				const uri = `${getStore().host}/agendas/${getStore().username}/contacts/${id}`;
 				const options = {
 					method: 'PUT',
 					headers: {
@@ -128,11 +131,12 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log('Error:', response.status, response.statusText);
 					return
 				}
-
+				getActions().setCurrentContact({});
 				getActions().getContacts();
+
 			},
-			deleteContact: async () => {
-				const uri = `${getStore().host}/agendas/${username}/contacts/${id}`;
+			deleteContact: async (id) => {
+				const uri = `${getStore().host}/agendas/${getStore().username}/contacts/${id}`;
 				const options = {
 					method: 'DELETE',
 				};

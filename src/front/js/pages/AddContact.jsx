@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Context } from "../store/appContext.js";
 import rigoImageUrl from "../../img/rigo-baby.jpg";
 import "../../styles/home.css";
@@ -18,10 +18,6 @@ export const AddContact = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        if (!store.username) {
-            setAlertVisible(true);
-        }
-
         const dataToSend = {
             name: name,
             phone: phone,
@@ -35,11 +31,17 @@ export const AddContact = () => {
 
     const handleReset = () => { }
 
+    useEffect(() => {
+        if (store.username.length === 0) {
+            setAlertVisible(true);
+        }
+    }, [store.username]);
+
     return (
         <div className="container text-secondary w-50">
             <div className="d-flex align-items-center justify-content-between" style={{ display: 'flex' }} >
 
-                <h1 className="text-dark pt-4">Add Contact of {store.username} </h1>
+                <h1 className="text-dark pt-4"> {store.username ? `Add Contacts to ${store.username} 's agenda` : "Add Contacts to agenda"} </h1>
                 <Link to="/Contacts" >
                     <button className="btn btn-secondary mt-4" >
                         Go back to contacts
@@ -48,8 +50,9 @@ export const AddContact = () => {
             </div>
 
             <div className="alert alert-danger" role="alert" style={{ visibility: alertVisible ? 'visible' : 'hidden' }}>
-                User doesn't exist! You need to go to Log In and create a username(can be new or already existing)
+                User doesn't exist! You need to go to Log In and create a username or access an already existing one!
             </div>
+
             <form onSubmit={handleSubmit} >
                 <div className="mb-3">
                     <label htmlFor="InputName" className="form-label">

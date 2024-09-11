@@ -1,44 +1,65 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+
 
 
 export const Contacts = () => {
     const { store, actions } = useContext(Context);
+    const [alertVisible, setAlertVisible] = useState(false);
+
+    useEffect(() => {
+        if (store.username.length === 0) {
+            setAlertVisible(true);
+        }
+    }, [store.username]);
+
+    const editContacts = async (itemContact) => {
+        actions.setCurrentContact(itemContact)
+        Navigate('/edit-contacts');
+    }
+
+    const deleteContact = (id) => {
+        actions.deleteContact(id);
+    }
 
     return (
-        < div className="container bg-dark mb-3" >
+        < div className="container bg-dark mb-3 pb-4" >
             <div className="navbar navbar-dark bg-dark">
                 <h1 className="text-light pt-4">
-                    Contacts of {store.username}
+                    {store.username ? `Contacts of ${store.username}'s agenda` : "Contacts"}
                 </h1>
                 <Link to="/add-contact">
-                    <button className="btn btn-secondary">
+                    <button className="btn btn-secondary mt-4">
                         Add Contact
                     </button>
                 </Link>
+                
             </div>
+                <div className="alert alert-danger m-3 d-flex justify-content-center align-content-center text-center mb-4" role="alert" style={{ visibility: alertVisible ? 'visible' : 'hidden' }}>
+                    You need to access to a contact first! Go to Log In and create a username or access an already existing one!
+                </div>
             <div>
                 {store.singleAgenda.map((item) => {
                     return (
-                        <div className="card mb-3 d-flex justify-content-between">
+                        <div key={item.id} className="card mb-3 d-flex justify-content-between">
                             <div className="row g-0 bg-secondary bg-opacity-10">
                                 <div className="col-md-3 p-2 position-relative">
                                     <div className="d-none d-md-block position-absolute top-50 start-50 translate-middle">
-                                        <img src="./star-wars-soldier.jpeg" className="img-fluid rounded-start" alt="Star Wars - Soldier" />
+                                        <img src=" " className="img-fluid rounded-start" alt="Star Wars - Soldier" />
                                     </div>
                                 </div>
                                 <div className="col-md-7 p-2 text-start">
                                     <div className="card-body">
                                         <h5 className="card-title">{item.name}</h5>
                                         <p className="card-text">
-                                            <i class="fa-solid fa-location-dot"></i>
+                                            <i className="fa-solid fa-location-dot"></i>
                                             {item.address}
                                             <br></br>
-                                            <i class="fa-solid fa-phone"></i>
+                                            <i className="fa-solid fa-phone"></i>
                                             {item.phone}
                                             <br></br>
-                                            <i class="fa-solid fa-envelope"></i>
+                                            <i className="fa-solid fa-envelope"></i>
                                             {item.email}
                                         </p>
                                     </div>
@@ -46,12 +67,13 @@ export const Contacts = () => {
                                 <div className="col-md-2 p-2 text-end">
                                     <div className="mt-3">
                                         <div className="d-flex justify-content-evenly">
-                                            <a className="btn btn-secondary" href="/contacts/6">
-                                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="pen" className="svg-inline--fa fa-pen " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                                    <path fill="currentColor" d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3 291.7 90.3z"></path></svg>
-                                            </a>
-                                            <button type="button" className="btn btn-danger">
-
+                                            <Link to="/edit-contact" >
+                                                <button type="button" className="btn btn-secondary" onClick={() => editContacts(item)} >
+                                                    <i className="fa-solid fa-pen"></i>
+                                                </button>
+                                            </Link>
+                                            <button type="button" className="btn btn-danger" onClick={() => deleteContact(item.id)}>
+                                                <i className="fa-solid fa-trash"></i>
                                             </button>
                                         </div>
                                     </div>

@@ -20,7 +20,7 @@ export const Characters = () => {
                         <div className="card border-dark rounded my-3 mx-2 text-bg-dark">
                             <img
                                 alt={item.name}
-                                src={`https://starwars-visualguide.com/assets/img/characters/${index+1}.jpg`}
+                                src={item.url}
                             />
                             <div className="card-body">
                                 <h5 className="card-title">

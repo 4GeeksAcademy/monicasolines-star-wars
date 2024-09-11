@@ -14,10 +14,10 @@ export const Navbar = () => {
 						<Link to="/characters" className="nav-link text-light m-3">
 							Characters
 						</Link>
-						<Link to="/demo" className="nav-link text-light m-3">
+						<Link to="/planets" className="nav-link text-light m-3">
 							Planets
 						</Link>
-						<Link to="/demo" className="nav-link text-light m-3">
+						<Link to="/starships" className="nav-link text-light m-3">
 							Starships
 						</Link>
 						<Link to="/contacts" className="nav-link text-light m-3">

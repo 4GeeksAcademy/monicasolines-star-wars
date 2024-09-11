@@ -10,6 +10,10 @@ import { Footer } from "./component/Footer.jsx";
 import { Home } from "./pages/Home.jsx";
 import { Demo } from "./pages/Demo.jsx";
 import { Single } from "./pages/Single.jsx";
+import { AddContact } from "./pages/AddContact.jsx";
+import { Contacts } from "./pages/Contacts.jsx";
+import { Login } from "./pages/Login.jsx";
+import { EditContacts } from "./pages/EditContacts.jsx";
 
 
 //Create your first component
@@ -17,7 +21,7 @@ const Layout = () => {
     //The basename is used when your project is published in a subdirectory and not in the root of the domain
     // You can set the basename on the .env file located at the root of this project, E.g: BASENAME=/react-hello-webapp/
     const basename = process.env.BASENAME || "";
-    if (!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL/ >;
+    if (!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL />;
 
     return (
         <div>
@@ -28,7 +32,12 @@ const Layout = () => {
                         <Route element={<Home />} path="/" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Single />} path="/single/:theid" />
+                        <Route element={<AddContact />} path="/add-contact" />
+                        <Route element={<Contacts />} path="/contacts" />
+                        <Route element={<Login />} path="/login" />
+                        <Route element={<EditContacts />} path="/edit-contact" />
                         <Route element={<h1>Not found!</h1>} path="*" />
+
                     </Routes>
                     <Footer />
                 </ScrollToTop>

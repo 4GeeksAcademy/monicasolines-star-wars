@@ -3,6 +3,7 @@ import { Context } from "../store/appContext.js";
 import rigoImageUrl from "../../img/rigo-baby.jpg";
 import "../../styles/home.css";
 import { Link, useNavigate } from "react-router-dom";
+import { Modal } from "../component/Modal.jsx";
 
 
 export const AddContact = () => {
@@ -12,15 +13,22 @@ export const AddContact = () => {
     const [email, setEmail] = useState('');
     const [address, setAddress] = useState('');
     const navigate = useNavigate();
+    const [alertVisible, setAlertVisible] = useState(false);
 
     const handleSubmit = (event) => {
         event.preventDefault();
+
+        if (!store.username) {
+            setAlertVisible(true);
+        }
+
         const dataToSend = {
             name: name,
             phone: phone,
             email: email,
             address: address,
         }
+
         actions.AddContact(dataToSend);
         navigate('/contacts')
     }
@@ -30,12 +38,17 @@ export const AddContact = () => {
     return (
         <div className="container text-secondary w-50">
             <div className="d-flex align-items-center justify-content-between" style={{ display: 'flex' }} >
-                <h1 className="text-dark pt-4">Add Contact</h1>
+
+                <h1 className="text-dark pt-4">Add Contact of {store.username} </h1>
                 <Link to="/Contacts" >
                     <button className="btn btn-secondary mt-4" >
                         Go back to contacts
                     </button>
                 </Link>
+            </div>
+
+            <div className="alert alert-danger" role="alert" style={{ visibility: alertVisible ? 'visible' : 'hidden' }}>
+                User doesn't exist! You need to go to Log In and create a username(can be new or already existing)
             </div>
             <form onSubmit={handleSubmit} >
                 <div className="mb-3">
@@ -99,5 +112,6 @@ export const AddContact = () => {
                 </div>
             </form>
         </div>
+
     )
 }

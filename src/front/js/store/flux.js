@@ -1,4 +1,5 @@
 
+
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
@@ -27,14 +28,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			getMessage: async () => {
-				try{
+				try {
 					// fetching data from the backend
 					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
 					const data = await resp.json()
 					setStore({ message: data.message })
 					// don't forget to return something, that is how the async resolves
 					return data;
-				}catch(error){
+				} catch (error) {
 					console.log("Error loading message from backend", error)
 				}
 			},
@@ -51,8 +52,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				//reset the global store
 				setStore({ demo: demo });
-			},getUsername: (username) => {
-				setStore({username: username})
+			}, getUsername: (username) => {
+				setStore({ username: username })
 			},
 			createAgenda: async (loginData) => {
 				const uri = `${getStore().host}/agendas/${getStore().username}`;
@@ -62,37 +63,21 @@ const getState = ({ getStore, getActions, setStore }) => {
 					body: JSON.stringify(loginData),
 				}
 				const response = await fetch(uri, options);
-				if(!response.ok) {
+				if (!response.ok) {
 					console.log('Error:', error.status, error.statusText);
 					return
 				}
 
 				getActions().getContacts();
 			},
-			getAgendas: async () => {
-				const uri = `${getStore().host}/agendas`;
-				const options = {
-					method: 'GET'
-				};
-				const response = await fetch (uri, options);
-				if (!response.ok) {
-					console.log('Error:', response.status, response.statusText);
-					return
-				}
-
-				const data = await response.json();
-				console.log('data:', data);
-				
-				setStore({agendas: data.results}) //ver que tipo de data devuelve
-			},
 			getContacts: async () => {
-				console.log('Este es el username', getStore().username);
-				
+				console.log('Este es el username en getcontacts', getStore().username);
+
 				const uri = `${getStore().host}/agendas/${getStore().username}/contacts`;
 				const options = {
 					method: 'GET',
 				};
-				const response = await fetch (uri, options);
+				const response = await fetch(uri, options);
 				if (!response.ok) {
 					console.log('Error:', response.status, response.statusText);
 					return
@@ -100,11 +85,18 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				const data = await response.json();
 
-				setStore({singleAgenda: data.contacts});
+				setStore({ singleAgenda: data.contacts });
+				console.log('estos son los contacts:', getStore().singleAgenda);
+
 			},
 			AddContact: async (dataToSend) => {
-				console.log('Este es el  username:', getStore().username);
-				
+				console.log('Este es el  username en add contact:', getStore().username);
+
+				if (!getStore().username) {
+					setAlertVisible(true);
+					return;
+				}
+
 				const uri = `${getStore().host}/agendas/${getStore().username}/contacts`;
 				const options = {
 					method: 'POST',
@@ -113,25 +105,26 @@ const getState = ({ getStore, getActions, setStore }) => {
 					},
 					body: JSON.stringify(dataToSend)
 				}
-				const response = await fetch (uri, options);
+
+				const response = await fetch(uri, options);
 				if (!response.ok) {
 					console.log('Error:', response.status, response.statusText);
 					return
 				}
-				const data =  await response.json();
-				getActions().getContacts();
+				const data = await response.json();
+				getActions().getContacts(getStore().username);
 			},
 			editContact: async (id, dataToSend) => {
 				const uri = `${getStore().host}/${username}/contacts/${id}`;
 				const options = {
 					method: 'PUT',
 					headers: {
-						'Content-Type' : 'application/json',
+						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(dataToSend),
 				};
-				const response = await fetch (uri,options);
-				if(!options.ok) {
+				const response = await fetch(uri, options);
+				if (!options.ok) {
 					console.log('Error:', response.status, response.statusText);
 					return
 				}
@@ -143,7 +136,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const options = {
 					method: 'DELETE',
 				};
-				const response = await fetch (uri, options);
+				const response = await fetch(uri, options);
 				if (!response.ok) {
 					console.log('Error:', response.status, response.statusText);
 					return

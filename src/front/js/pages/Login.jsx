@@ -20,7 +20,10 @@ export const Login = () => {
             id: randomId,
         }
         actions.createAgenda(loginData);
+
         navigate('/contacts');
+
+        actions.getContacts(username);
     }
 
 

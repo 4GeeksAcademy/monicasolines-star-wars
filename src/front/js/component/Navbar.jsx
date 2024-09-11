@@ -32,7 +32,7 @@ export const Navbar = () => {
 							</ul>
 						</li>
 						<Link to="/login" className="btn btn-success pe-3 ps-3 nav-link text-light m-3">
-							Login
+							Log In
 						</Link>
 					</div>
 				</ul>

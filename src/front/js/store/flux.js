@@ -1,3 +1,5 @@
+
+
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
@@ -13,7 +15,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 					background: "white",
 					initial: "white"
 				}
-			]
+			],
+			host: `https://playground.4geeks.com/contact`,
+			agendas: [],
+			singleAgenda: [],
+			username: '',
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -22,14 +28,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			getMessage: async () => {
-				try{
+				try {
 					// fetching data from the backend
 					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
 					const data = await resp.json()
 					setStore({ message: data.message })
 					// don't forget to return something, that is how the async resolves
 					return data;
-				}catch(error){
+				} catch (error) {
 					console.log("Error loading message from backend", error)
 				}
 			},
@@ -46,7 +52,97 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				//reset the global store
 				setStore({ demo: demo });
-			}
+			}, getUsername: (username) => {
+				setStore({ username: username })
+			},
+			createAgenda: async (loginData) => {
+				const uri = `${getStore().host}/agendas/${getStore().username}`;
+				const options = {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(loginData),
+				}
+				const response = await fetch(uri, options);
+				if (!response.ok) {
+					console.log('Error:', error.status, error.statusText);
+					return
+				}
+
+				getActions().getContacts();
+			},
+			getContacts: async () => {
+				console.log('Este es el username en getcontacts', getStore().username);
+
+				const uri = `${getStore().host}/agendas/${getStore().username}/contacts`;
+				const options = {
+					method: 'GET',
+				};
+				const response = await fetch(uri, options);
+				if (!response.ok) {
+					console.log('Error:', response.status, response.statusText);
+					return
+				}
+
+				const data = await response.json();
+
+				setStore({ singleAgenda: data.contacts });
+				console.log('estos son los contacts:', getStore().singleAgenda);
+
+			},
+			AddContact: async (dataToSend) => {
+				console.log('Este es el  username en add contact:', getStore().username);
+
+				if (!getStore().username) {
+					setAlertVisible(true);
+					return;
+				}
+
+				const uri = `${getStore().host}/agendas/${getStore().username}/contacts`;
+				const options = {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(dataToSend)
+				}
+
+				const response = await fetch(uri, options);
+				if (!response.ok) {
+					console.log('Error:', response.status, response.statusText);
+					return
+				}
+				const data = await response.json();
+				getActions().getContacts(getStore().username);
+			},
+			editContact: async (id, dataToSend) => {
+				const uri = `${getStore().host}/${username}/contacts/${id}`;
+				const options = {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(dataToSend),
+				};
+				const response = await fetch(uri, options);
+				if (!options.ok) {
+					console.log('Error:', response.status, response.statusText);
+					return
+				}
+
+				getActions().getContacts();
+			},
+			deleteContact: async () => {
+				const uri = `${getStore().host}/agendas/${username}/contacts/${id}`;
+				const options = {
+					method: 'DELETE',
+				};
+				const response = await fetch(uri, options);
+				if (!response.ok) {
+					console.log('Error:', response.status, response.statusText);
+					return
+				};
+				getActions().getContacts();
+			},
 		}
 	};
 };

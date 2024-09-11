@@ -21,6 +21,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 			singleAgenda: [],
 			username: '',
 			currentContact: {},
+			hostStarWars: 'https://swapi.dev/api',
+			characters: [],
+			planets: [],
+			starships: [],
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -146,6 +150,60 @@ const getState = ({ getStore, getActions, setStore }) => {
 					return
 				};
 				getActions().getContacts();
+			},
+			getCharacters: async () => {
+				const uri = `${getStore().hostStarWars}/people`
+				console.log('URI:', uri);
+				const options = {
+					method: 'GET',
+				}
+
+				const response = await fetch(uri, options);
+
+				if (!response.ok) {
+					console.log('Error:', response.status, response.statusText);
+					return
+				}
+
+				const data = await response.json();
+				console.log('este es el data:', data);
+				setStore({ characters: data.results });
+			},
+			getPlanets: async () => {
+				const uri = `${getStore().hostStarWars}/planets`
+				console.log('URI:', uri);
+				const options = {
+					method: 'GET',
+				}
+
+				const response = await fetch(uri, options);
+
+				if (!response.ok) {
+					console.log('Error:', response.status, response.statusText);
+					return
+				}
+
+				const data = await response.json();
+				console.log('este es el data:', data);
+				setStore({ planets: data.results });
+			},
+			getStarships: async () => {
+				const uri = `${getStore().hostStarWars}/starships`
+				console.log('URI:', uri);
+				const options = {
+					method: 'GET',
+				}
+
+				const response = await fetch(uri, options);
+
+				if (!response.ok) {
+					console.log('Error:', response.status, response.statusText);
+					return
+				}
+
+				const data = await response.json();
+				console.log('este es el data:', data);
+				setStore({ starships: data.results });
 			},
 		}
 	};

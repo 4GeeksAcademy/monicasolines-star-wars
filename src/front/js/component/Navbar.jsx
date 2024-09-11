@@ -11,7 +11,7 @@ export const Navbar = () => {
 				</Link>
 				<ul className="navbar-nav" >
 					<div className="ml-auto" style={{ display: 'inline-flex' }}>
-						<Link to="/demo" className="nav-link text-light m-3">
+						<Link to="/characters" className="nav-link text-light m-3">
 							Characters
 						</Link>
 						<Link to="/demo" className="nav-link text-light m-3">

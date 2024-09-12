@@ -14,6 +14,7 @@ export const Login = () => {
             username = username.replace(/\s/g, '');
         }
         actions.getUsername(username);
+        localStorage.setItem('username', username);
 
         const loginData = {
             slug: username,

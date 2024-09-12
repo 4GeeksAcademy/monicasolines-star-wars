@@ -60,9 +60,15 @@ const getState = ({ getStore, getActions, setStore }) => {
 				setStore({ demo: demo });
 			},
 			getUsername: (username) => {
-				if (localStorage.getItem('username')) {
-					// alert('ya existe usuario!!!');
-					// setStore({ username: JSON.parse(localStorage.getItem('username')) })
+				const storedUsername = localStorage.getItem('username');
+				if (storedUsername) {
+					try {
+						const localUsername = localStorage.getItem('username')
+						setStore({ username: localUsername })
+					} catch (error) {
+						console.error('Error al analizar el nombre de usuario almacenado:', error);
+						setStore({ username: '' });
+					}
 					return
 				}
 				setStore({ username: username })
@@ -237,7 +243,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				const data = await response.json();
 				console.log('este es el data de details:', data);
-				setStore({characterDetails : data.result.properties})
+				setStore({ characterDetails: data.result.properties })
 			},
 		}
 	};

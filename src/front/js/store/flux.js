@@ -21,10 +21,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 			singleAgenda: [],
 			username: '',
 			currentContact: {},
-			hostStarWars: 'https://swapi.dev/api',
+			hostStarWars: 'https://swapi.tech/api',
 			characters: [],
 			planets: [],
 			starships: [],
+			characterDetails: {},
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -57,8 +58,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				//reset the global store
 				setStore({ demo: demo });
-			}, getUsername: (username) => {
+			},
+			getUsername: (username) => {
+				if (localStorage.getItem('username')) {
+					// alert('ya existe usuario!!!');
+					// setStore({ username: JSON.parse(localStorage.getItem('username')) })
+					return
+				}
 				setStore({ username: username })
+				localStorage.setItem('username', JSON.stringify(username))
+			},
+			clearUsername: () => {
+				setStore({ username: '' });
+				localStorage.removeItem('username');
 			},
 			setCurrentContact: (contact) => { setStore({ currentContact: contact }) },
 			createAgenda: async (loginData) => {
@@ -168,6 +180,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const data = await response.json();
 				console.log('este es el data:', data);
 				setStore({ characters: data.results });
+				localStorage.setItem('characters', JSON.stringify(data.results))
 			},
 			getPlanets: async () => {
 				const uri = `${getStore().hostStarWars}/planets`
@@ -186,6 +199,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const data = await response.json();
 				console.log('este es el data:', data);
 				setStore({ planets: data.results });
+				localStorage.setItem('planets', JSON.stringify(data.results));
 			},
 			getStarships: async () => {
 				const uri = `${getStore().hostStarWars}/starships`
@@ -202,8 +216,28 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 
 				const data = await response.json();
-				console.log('este es el data:', data);
+				console.log('este es el data de starships:', data);
 				setStore({ starships: data.results });
+				localStorage.setItem('starships', JSON.stringify(data.results));
+			},
+			getCharactersDetails: async (id) => {
+				console.log('flux', id);
+
+				const uri = `${getStore().hostStarWars}/people/${id}`
+				const options = {
+					method: 'GET',
+				}
+
+				const response = await fetch(uri, options);
+
+				if (!response.ok) {
+					console.log('Error:', response.status, response.statusText);
+					return
+				}
+
+				const data = await response.json();
+				console.log('este es el data de details:', data);
+				setStore({characterDetails : data.result.properties})
 			},
 		}
 	};

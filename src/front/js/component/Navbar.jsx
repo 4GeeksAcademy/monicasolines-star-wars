@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import logo from "../../img/logo1.png";
+import { Context } from "../store/appContext";
 
 export const Navbar = () => {
+	const {store, actions} = useContext(Context)
+
 	return (
 		<nav className="navbar navbar-dark bg-dark" style={{ background: 'transparent' }}>
 			<div className="container" >
@@ -31,9 +34,17 @@ export const Navbar = () => {
 								<li><a className="dropdown-item" href="#">en este li va un map del array favorites</a></li>
 							</ul>
 						</li>
+						{store.username.length === 0 ? 
 						<Link to="/login" className="btn btn-success pe-3 ps-3 nav-link text-light m-3">
 							Log In
 						</Link>
+						:
+						<button className="btn btn-danger pe-3 ps-3 nav-link text-light m-3"
+						onClick={() => actions.clearUsername()}
+						>
+							Log out
+						</button>
+						}
 					</div>
 				</ul>
 

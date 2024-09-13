@@ -26,6 +26,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 			planets: [],
 			starships: [],
 			characterDetails: {},
+			planetDetails: {},
+			starshipDetails: {},
+			favorites: [],
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -78,6 +81,20 @@ const getState = ({ getStore, getActions, setStore }) => {
 				setStore({ username: '' });
 				localStorage.removeItem('username');
 			},
+			addFavorite: (newFavorite) => {
+				// setStore({ favorites: [...getStore().favorites, newFavorite] })
+				getStore().favorites.some(fav => fav.name === newFavorite.name && fav.type === newFavorite.type)
+					?
+					alert('Este elemento ya esta en tus favoritos!')
+					:
+					setStore({ favorites: [...getStore().favorites, newFavorite] })
+			},
+			removeFavorite: (item) => {
+				/* const newFavorite = getStore().favorites.filter((element) => element !== item);
+				setStore({ favorites: newFavorite }); */
+				// para que este todo en una linea se puede hacer como abajo:
+				setStore({ favorites: getStore().favorites.filter((element) => element !== item) })
+			},
 			setCurrentContact: (contact) => { setStore({ currentContact: contact }) },
 			createAgenda: async (loginData) => {
 				const uri = `${getStore().host}/agendas/${getStore().username}`;
@@ -95,7 +112,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				getActions().getContacts();
 			},
 			getContacts: async () => {
-				console.log('Este es el username en getcontacts', getStore().username);
+				// console.log('Este es el username en getcontacts', getStore().username);
 
 				const uri = `${getStore().host}/agendas/${getStore().username}/contacts`;
 				const options = {
@@ -110,11 +127,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const data = await response.json();
 
 				setStore({ singleAgenda: data.contacts });
-				console.log('estos son los contacts:', getStore().singleAgenda);
+				// console.log('estos son los contacts:', getStore().singleAgenda);
 
 			},
 			addContact: async (dataToSend) => {
-				console.log('Este es el  username en add contact:', getStore().username);
+				// console.log('Este es el  username en add contact:', getStore().username);
 
 				if (!getStore().username) {
 					setAlertVisible(true);
@@ -171,7 +188,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			getCharacters: async () => {
 				const uri = `${getStore().hostStarWars}/people`
-				console.log('URI:', uri);
+				// console.log('URI:', uri);
 				const options = {
 					method: 'GET',
 				}
@@ -184,13 +201,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 
 				const data = await response.json();
-				console.log('este es el data:', data);
+				// console.log('este es el data:', data);
 				setStore({ characters: data.results });
 				localStorage.setItem('characters', JSON.stringify(data.results))
 			},
 			getPlanets: async () => {
 				const uri = `${getStore().hostStarWars}/planets`
-				console.log('URI:', uri);
+				// console.log('URI:', uri);
 				const options = {
 					method: 'GET',
 				}
@@ -203,13 +220,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 
 				const data = await response.json();
-				console.log('este es el data:', data);
+				// console.log('este es el data:', data);
 				setStore({ planets: data.results });
 				localStorage.setItem('planets', JSON.stringify(data.results));
 			},
 			getStarships: async () => {
 				const uri = `${getStore().hostStarWars}/starships`
-				console.log('URI:', uri);
+				// console.log('URI:', uri);
 				const options = {
 					method: 'GET',
 				}
@@ -222,12 +239,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 
 				const data = await response.json();
-				console.log('este es el data de starships:', data);
+				// console.log('este es el data de starships:', data);
 				setStore({ starships: data.results });
 				localStorage.setItem('starships', JSON.stringify(data.results));
 			},
 			getCharactersDetails: async (id) => {
-				console.log('flux', id);
+				// console.log('flux', id);
+
+				setStore({ characterDetails: {} });
 
 				const uri = `${getStore().hostStarWars}/people/${id}`
 				const options = {
@@ -242,8 +261,48 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 
 				const data = await response.json();
-				console.log('este es el data de details:', data);
+				// console.log('este es el data de details:', data);
 				setStore({ characterDetails: data.result.properties })
+			},
+			getPlanetsDetails: async (id) => {
+				setStore({ planetDetails: {} });
+				const uri = `${getStore().hostStarWars}/planets/${id}`
+				// console.log('URI:', uri);
+				const options = {
+					method: 'GET',
+				}
+
+				const response = await fetch(uri, options);
+
+				if (!response.ok) {
+					console.log('Error:', response.status, response.statusText);
+					return
+				}
+
+				const data = await response.json();
+				// console.log('este es el data de details planets:', data);
+				setStore({ planetDetails: data.result.properties });
+				/* localStorage.setItem('planetsDetails:', JSON.stringify(data.results)); */
+			},
+			getStarshipsDetails: async (id) => {
+				setStore({ starshipDetails: {} });
+				const uri = `${getStore().hostStarWars}/starships/${id}`
+				// console.log('URI:', uri);
+				const options = {
+					method: 'GET',
+				}
+
+				const response = await fetch(uri, options);
+
+				if (!response.ok) {
+					console.log('Error:', response.status, response.statusText);
+					return
+				}
+
+				const data = await response.json();
+				// console.log('este es el data de details starships:', data);
+				setStore({ starshipDetails: data.result.properties });
+				/* localStorage.setItem('planetsDetails:', JSON.stringify(data.results)); */
 			},
 		}
 	};

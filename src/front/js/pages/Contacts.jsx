@@ -34,11 +34,11 @@ export const Contacts = () => {
                         Add Contact
                     </button>
                 </Link>
-                
+
             </div>
-                <div className="alert alert-danger m-3 d-flex justify-content-center align-content-center text-center mb-4" role="alert" style={{ visibility: alertVisible ? 'visible' : 'hidden' }}>
-                    You need to access to a contact first! Go to Log In and create a username or access an already existing one!
-                </div>
+            <div className="alert alert-danger m-3 d-flex justify-content-center align-content-center text-center mb-4" role="alert" style={{ visibility: alertVisible ? 'visible' : 'hidden' }}>
+                You need to access to a contact first! Go to Log In and create a username or access an already existing one!
+            </div>
             <div>
                 {store.singleAgenda.map((item) => {
                     return (

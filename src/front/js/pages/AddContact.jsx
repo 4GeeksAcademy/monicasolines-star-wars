@@ -3,7 +3,7 @@ import { Context } from "../store/appContext.js";
 import rigoImageUrl from "../../img/rigo-baby.jpg";
 import "../../styles/home.css";
 import { Link, useNavigate } from "react-router-dom";
-import { Modal } from "../component/Modal.jsx";
+
 
 
 export const AddContact = () => {
@@ -25,7 +25,7 @@ export const AddContact = () => {
             address: address,
         }
 
-        actions.AddContact(dataToSend);
+        actions.addContact(dataToSend);
         navigate('/contacts')
     }
 

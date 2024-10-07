@@ -35,7 +35,23 @@ const getState = ({ getStore, getActions, setStore }) => {
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
-
+			login: async () => {
+				const uri = ``
+				const options = {
+					method: 'POST',
+					headers: {
+						"Content-Type": "application/json",
+					body: JSON.stringify(dataToSend)
+					}
+				}
+				const response = await fetch(uri, options)
+				if (!response.ok) {
+					// tratamos error
+					console.log('yo que se')
+				}
+				const data = await response.json()
+				console.log(data)
+			},
 			getMessage: async () => {
 				try {
 					// fetching data from the backend

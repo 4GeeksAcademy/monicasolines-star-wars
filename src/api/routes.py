@@ -395,6 +395,17 @@ def character(id):
     return response_body, 200
 
 
+@api.route('characters', methods=['GET', 'POST'])
+def characters():
+    response_body = {}
+    url = 'https://www.swapi.tech/api/people'
+    response = requests.get(url)
+    print(response)
+    if response.status_code == 200:
+        data = response.json()
+        response_body['results'] = data
+    return response_body, 200
+
 @api.route('/planets/<int:id>', methods=['GET'])
 def planet(id):
     response_body = {}
@@ -428,4 +439,15 @@ def planet(id):
     else:
         response_body['error'] = f'Error al obtener datos desde SWAPI. Código de estado: {response.status_code}'
 
+    return response_body, 200
+
+@api.route('planets', methods=['GET', 'POST'])
+def planets():
+    response_body = {}
+    url = 'https://www.swapi.tech/api/planets'
+    response = requests.get(url)
+    print(response)
+    if response.status_code == 200:
+        data = response.json()
+        response_body['results'] = data
     return response_body, 200

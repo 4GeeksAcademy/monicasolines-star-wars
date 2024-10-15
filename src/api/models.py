@@ -45,7 +45,8 @@ class Posts(db.Model):
                 'description': self.description,
                 'body': self.body,
                 'date': self.date,
-                'image_url': self.image_url}
+                'image_url': self.image_url,
+                'users_id': self.users_id}
 
 class Comments(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -55,9 +56,14 @@ class Comments(db.Model):
     users_id =  db.Column(db.Integer, db.ForeignKey('users.id'))
     user_to = db.relationship('Users', foreign_keys=[users_id], backref=db.backref('comments_to', lazy='select'))
 
+    def __repr__ (self):
+        return f'comment: {self.id} - {self.body}'
+    
     def serialize(self):
         return {'id': self.id,
-                'body': self.body,}
+                'body': self.body,
+                'post_id': self.post_id,
+                'users_id': self.users_id}
 
 class Medias(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -66,10 +72,14 @@ class Medias(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), unique=True)
     post_to = db.relationship('Posts', foreign_keys=[post_id], backref=db.backref('media_to', lazy='select'))
 
+    def __repr__ (self):
+        return f'media: {self.id} - {self.media_type} - {self.url}'
+    
     def serialize(self):
         return {'id': self.id,
                 'type': self.media_type,
-                'url': self.url}
+                'url': self.url,
+                'post_id': self.post_id}
 
 class Followers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -84,7 +94,9 @@ class Followers(db.Model):
     def serialize(self):
         return { 'id': self.id,
                 'following_id' : self.following_id,
-                'follower_id': self.follower_id,}
+                'follower_id': self.follower_id,
+                'following_email': self.following_to.email if self.following_to else None,  # Email del usuario seguido
+                'follower_email': self.follower_to.email if self.follower_to else None}
     
 class Characters(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -97,6 +109,9 @@ class Characters(db.Model):
     birth_year = db.Column(db.String, unique=False, nullable=False)
     gender = db.Column(db.String, unique=False, nullable=False)
 
+    def __repr__ (self):
+        return f'character: {self.id} - follower: {self.name}'
+    
     def serialize(self):
         return {'id': self.id,
                 'name': self.name,
@@ -105,7 +120,7 @@ class Characters(db.Model):
                 'hair_color': self.hair_color,
                 'skin_color': self.skin_color,
                 'eye_color': self.eye_color,
-                'bith_year': self.birth_year,
+                'birth_year': self.birth_year,
                 'gender': self.gender}
 
 class Character_Favorites(db.Model):
@@ -115,8 +130,13 @@ class Character_Favorites(db.Model):
     chracters_id =  db.Column(db.Integer, db.ForeignKey('characters.id'))
     chracter_to = db.relationship('Characters', foreign_keys=[chracters_id], backref=db.backref('characters_favorites_to', lazy='select'))
 
+    def __repr__ (self):
+        return f'Characters_favorites: {self.id}'
+    
     def serialize(self):
-        return {'id': self.id,}
+        return {'id': self.id,
+                'users_id': self.users_id,
+                'characters_id': self.chracters_id}
     
 class Planets(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -129,6 +149,9 @@ class Planets(db.Model):
     climate = db.Column(db.String, unique=False, nullable=False)
     terrain = db.Column(db.String, unique=False, nullable=False)
 
+    def __repr__ (self):
+        return f'Planets: {self.id} - {self.name}'
+    
     def serialize(self):
         return {'id': self.id,
                 'name': self.name,
@@ -144,11 +167,15 @@ class Planet_Favorites(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     users_id =  db.Column(db.Integer, db.ForeignKey('users.id'))
     user_to = db.relationship('Users', foreign_keys=[users_id], backref=db.backref('planets_favorites_to', lazy='select'))
-
     planets_id =  db.Column(db.Integer, db.ForeignKey('planets.id'))
     planets_to = db.relationship('Planets', foreign_keys=[planets_id], backref=db.backref('planets_favorites_to', lazy='select'))
 
+    def __repr__ (self):
+        return f'Planets_favorites: {self.id}'
+    
     def serialize(self):
-        return {'id': self.id,}
+        return {'id': self.id,
+                'users_id': self.users_id,
+                'planets_id': self.planets_id}
 
 # Model Table () : es bueno deberia aprender a utilizarlo ( cuando es mas optimo es mejor usar tabla a modelo), un poco mas complejo

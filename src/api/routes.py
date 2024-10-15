@@ -298,24 +298,32 @@ def characters_favorites():
         response_body['results'] = rows.serialize()
         return response_body, 200
 
-
-@api.route('character-favorites/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+# Trae los favoritos de un usuario
+@api.route('character-favorites/<int:id>', methods=['GET', 'PUT'])
 def character_favorite(id):
     response_body = {}
+    rows = db.session.execute (db.select(Character_Favorites).where(Character_Favorites.users_id == id)).scalars()
     if request.method == 'GET':
         response_body['message'] = f'Datos de la char fav: {id} (GET)'
-        response_body['results'] = {}
+        response_body['results'] = [row.serialize() for row in rows]
         return response_body, 200
-    if request.method == 'PUT':
-        response_body['message'] = f'char fav: {id} fue modificada (PUT)'
-        response_body['results'] = {}
-        return response_body, 200
+
+# Elimina un fav char
+@api.route('/character-favorites/<int:id>', methods=['DELETE'])
+def char_favorite_delete(id):
+    response_body = {}
+    row = db.session.execute (db.select(Character_Favorites).where(Character_Favorites.id == id)).scalar()
+    if row is None:
+        response_body['message'] = f'El character favorito con ID {id} no fue encontrado.'
+        return response_body, 404
     if request.method == 'DELETE':
-        response_body['message'] = f'Se elimino la char fav: {id} (DELETE)'
+        db.session.delete(row)
+        db.session.commit()
+        response_body['message'] = f'Se elimino la character fav: {id} (DELETE)'
         response_body['results'] = {}
         return response_body, 200
 
-
+# Trae todos los favoritos 
 @api.route('/planet-favorites', methods=['GET', 'POST'])
 def planet_favorites():
     response_body = {}
@@ -335,19 +343,27 @@ def planet_favorites():
         response_body['results'] = rows.serialize()
         return response_body, 200
 
-
-@api.route('/planets-favorites/<int:id>')
+# Trae los favoritos de un usuario
+@api.route('/planets-favorites/<int:id>', methods=['GET'])
 def planet_favorite(id):
     response_body = {}
+    rows = db.session.execute (db.select(Planet_Favorites).where(Planet_Favorites.users_id == id)).scalars()
     if request.method == 'GET':
-        response_body['message'] = f'Datos de la planet fav: {id} (GET)'
-        response_body['results'] = {}
+        response_body['message'] = f'Planets favoritos del user: {id} (GET)'
+        response_body['results'] = [row.serialize() for row in rows]
         return response_body, 200
-    if request.method == 'PUT':
-        response_body['message'] = f'planet fav: {id} fue modificada (PUT)'
-        response_body['results'] = {}
-        return response_body, 200
+
+
+@api.route('/planets-favorites/<int:id>', methods=['DELETE'])
+def planet_favorite_delete(id):
+    response_body = {}
+    row = db.session.execute (db.select(Planet_Favorites).where(Planet_Favorites.id == id)).scalar()
+    if row is None:
+        response_body['message'] = f'El planeta favorito con ID {id} no fue encontrado.'
+        return response_body, 404
     if request.method == 'DELETE':
+        db.session.delete(row)
+        db.session.commit()
         response_body['message'] = f'Se elimino la planet fav: {id} (DELETE)'
         response_body['results'] = {}
         return response_body, 200

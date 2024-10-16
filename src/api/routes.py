@@ -28,6 +28,7 @@ def handle_hello():
 def login():
     response_body = {}
     data = request.json
+    # Se puede hacer de estas dos maneras : data.get (ya que arriba dije que data=request.json o si no declaro data puedo simplemente usar request.json.get)
     email = data.get("email", None)
     password = request.json.get("password", None)
     user = db.session.execute(db.select(Users).where(Users.email == email, Users.password == password, Users.is_active)).scalar()
@@ -40,12 +41,13 @@ def login():
     response_body['access_token'] = access_token
     return response_body, 200
 
-
+# Endpoint ejemplo para saber como porteger endpoints y que requieran token para usar
 @api.route("/protected", methods=["GET"])
 @jwt_required()
 def protected():
     response_body = {}
-    # Access the identity of the current user with get_jwt_identity
+    # Access the identity of the current user with get_jwt_identity, en login le di el valor a identity(en este caso email y user_id)
+    # puede ser solo una clave o tmb diccionario, en este caso es diccionario
     current_user = get_jwt_identity()
     response_body['logged_in_as'] = current_user
     return response_body, 200
@@ -66,6 +68,7 @@ def users():
 # SCALARS = LISTA / SCALAR = DICCIONARIO
 # Endpoints de los Posts
 @api.route('/posts', methods=['GET', 'POST'])
+@jwt_required()
 def posts():
     response_body = {}
     if request.method == 'GET':
@@ -92,7 +95,7 @@ def posts():
 
 # Este endpoint trae un post especifico, lo edita y elimina
 @api.route('/posts/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-# @jwt_required()
+@jwt_required()
 def post(id):
     response_body = {}
     row = db.session.execute (db.select(Posts).where(Posts.id == id)).scalar()
@@ -100,7 +103,14 @@ def post(id):
         response_body['message'] = f'NO EXISTE LA PUBLICACION: {id} (GET)'
         response_body['results'] = {}
         return response_body, 400
-    
+    # Con esto traigo el valor de identity
+    # Y confirmo que el user_id del post en la base de datos sea el mismo al del current user(tiene user_id y email)
+    # al ser un diccionario current user se accede atraves de ['']
+    current_user = get_jwt_identity()
+    if row.users_id != current_user['user_id']:
+        response_body['message'] = f'Este no es tu post: {id} (GET)'
+        response_body['results'] = {}
+        return response_body, 400
     if request.method == 'GET':
         response_body['message'] = f'Datos de la publicacion: {id} (GET)'
         response_body['results'] = row.serialize()
@@ -112,7 +122,8 @@ def post(id):
         row.body = data.get('body')
         row.date = datetime.now()
         row.image_url = data.get('image_url')
-        row.users_id = data.get('users_id')
+        # la quite que pueda modificar el users_id ya que si no cada que se modifica 
+        # si no se ingresa el usuario entonces se queda sin
         db.session.commit()
         response_body['message'] = f'Publicacion: {id} fue modificada (PUT)'
         response_body['results'] = row.serialize()
@@ -127,7 +138,7 @@ def post(id):
 
 # Este endpoint trae todos los posts de un usuario
 @api.route('/users/<int:id>/posts', methods=['GET', 'PUT', 'DELETE'])
-# @jwt_required()
+@jwt_required()
 def user_post(id):
     response_body = {}
     rows = db.session.execute (db.select(Posts).where(Posts.users_id == id)).scalars()
@@ -135,7 +146,11 @@ def user_post(id):
         response_body['message'] = f'NO EXISTE LA PUBLICACION: {id} (GET)'
         response_body['results'] = {}
         return response_body, 400
-    
+    current_user = get_jwt_identity()
+    if id != current_user['user_id']:
+        response_body['message'] = f'Estos no son tus post: {id} (GET)'
+        response_body['results'] = {}
+        return response_body, 400
     if request.method == 'GET':
         response_body['message'] = f'Datos de todas las publicacion: {id} (GET)'
         response_body['results'] = [row.serialize() for row in rows]
@@ -165,6 +180,7 @@ def followers():
 
 # Eso trae los seguidores de un usuario especifico
 @api.route('users/<int:id>/followers', methods=['GET', 'PUT', 'DELETE'])
+@jwt_required()
 def follower(id):
     response_body = {}
     rows = db.session.execute (db.select(Followers).where(Followers.following_id == id)).scalars()
@@ -172,7 +188,11 @@ def follower(id):
         response_body['message'] = f'NO EXISTE ESTE USUARIO: {id} (GET)'
         response_body['results'] = {}
         return response_body, 400
-    
+    current_user = get_jwt_identity()
+    if id != current_user['user_id']:
+        response_body['message'] = f'Estos no son tus seguidores: {id} (GET)'
+        response_body['results'] = {}
+        return response_body, 400
     if request.method == 'GET':
         response_body['message'] = f'Datos de followers: {id} (GET)'
         response_body['results'] = [row.serialize() for row in rows]
@@ -181,6 +201,7 @@ def follower(id):
 
 # Esto trae los que el usuario sigue
 @api.route('users/<int:id>/following', methods=['GET', 'PUT', 'DELETE'])
+@jwt_required()
 def following(id):
     response_body = {}
     rows = db.session.execute (db.select(Followers).where(Followers.follower_id == id)).scalars()
@@ -188,7 +209,11 @@ def following(id):
         response_body['message'] = f'NO EXISTE ESTE USUARIO: {id} (GET)'
         response_body['results'] = {}
         return response_body, 400
-    
+    current_user = get_jwt_identity()
+    if id != current_user['user_id']:
+        response_body['message'] = f'Estos no son tuyos: {id} (GET)'
+        response_body['results'] = {}
+        return response_body, 400
     if request.method == 'GET':
         response_body['message'] = f'Datos de los que sigue el: {id} (GET)'
         response_body['results'] = [row.serialize() for row in rows]
@@ -217,6 +242,7 @@ def comments():
 
 # Trae un comment especifico, lo edita y elimina
 @api.route('post/<int:id>/comments/', methods=['GET', 'PUT', 'DELETE'])
+@jwt_required()
 def comment(id):
     response_body = {}
     row = db.session.execute (db.select(Comments).where(Comments.id == id)).scalar()
@@ -224,7 +250,11 @@ def comment(id):
         response_body['message'] = f'NO EXISTE ESTE Comment: {id} (GET)'
         response_body['results'] = {}
         return response_body, 400
-    
+    current_user = get_jwt_identity()
+    if id != current_user['user_id']:
+        response_body['message'] = f'Este no es tu comment: {id} (GET)'
+        response_body['results'] = {}
+        return response_body, 400
     if request.method == 'GET':
         response_body['message'] = f'Datos del comment: {id} (GET)'
         response_body['results'] = row.serialize()
@@ -247,7 +277,7 @@ def comment(id):
     
 
 #esto trae los comments de un post especifico
-@api.route('post/<int:id>/comments', methods=['GET', 'PUT', 'DELETE'])
+@api.route('post/<int:id>/comments', methods=['GET'])
 def post_comments(id):
     response_body = {}
     rows = db.session.execute (db.select(Comments).where(Comments.post_id == id)).scalars()

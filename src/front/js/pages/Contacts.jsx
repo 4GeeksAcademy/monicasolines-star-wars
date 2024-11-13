@@ -1,12 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
-import { Link, Navigate } from "react-router-dom";
+import { Link} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 
 export const Contacts = () => {
     const { store, actions } = useContext(Context);
     const [alertVisible, setAlertVisible] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (store.username.length === 0) {
@@ -16,7 +18,7 @@ export const Contacts = () => {
 
     const editContacts = async (itemContact) => {
         actions.setCurrentContact(itemContact)
-        Navigate('/edit-contacts');
+        navigate('/edit-contacts');
     }
 
     const deleteContact = (id) => {

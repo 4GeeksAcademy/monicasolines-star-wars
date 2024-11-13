@@ -41,6 +41,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				background: 'danger',
 				visible: false
 			},
+			posts: [],
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -113,21 +114,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 				//reset the global store
 				setStore({ demo: demo });
 			},
-			// getUsername: () => {
-			// 	const storedUsername = localStorage.getItem('username');
-			// 	if (storedUsername) {
-			// 		try {
-			// 			const localUsername = localStorage.getItem('username')
-			// 			setStore({ username: localUsername })
-			// 		} catch (error) {
-			// 			console.error('Error al analizar el nombre de usuario almacenado:', error);
-			// 			setStore({ username: '' });
-			// 		}
-			// 		return
-			// 	}
-			// 	setStore({ username: username })
-			// 	localStorage.setItem('username', JSON.stringify(username))
-			// },
+			getUsername: () => {
+				const storedUsername = localStorage.getItem('username');
+				if (storedUsername) {
+					try {
+						const localUsername = localStorage.getItem('username')
+						setStore({ username: localUsername })
+					} catch (error) {
+						console.error('Error al analizar el nombre de usuario almacenado:', error);
+						setStore({ username: '' });
+					}
+					return
+				}
+			},
 			addFavorite: (newFavorite) => {
 				// setStore({ favorites: [...getStore().favorites, newFavorite] })
 				getStore().favorites.some(fav => fav.name === newFavorite.name && fav.type === newFavorite.type)
@@ -174,7 +173,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const data = await response.json();
 
 				setStore({ singleAgenda: data.contacts });
-				// console.log('estos son los contacts:', getStore().singleAgenda);
+				console.log('estos son los contacts:', getStore().singleAgenda);
 			},
 			addContact: async (dataToSend) => {
 				// console.log('Este es el  username en add contact:', getStore().username);
@@ -212,7 +211,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					body: JSON.stringify(dataToSend),
 				};
 				const response = await fetch(uri, options);
-				if (!options.ok) {
+				if (!response.ok) {
 					console.log('Error:', response.status, response.statusText);
 					return
 				}
@@ -421,7 +420,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 					return
 				}
 				const data = await response.json();
-				console.log(data);
+				console.log( 'get posts:', data);
+				setStore({ posts: data.results });
 			},
 			getPost: async (id) => {
 				const token = localStorage.getItem('token')

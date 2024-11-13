@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Context } from "../store/appContext";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 export const EditContacts = () => {
     const { store, actions } = useContext(Context);
@@ -10,6 +10,7 @@ export const EditContacts = () => {
     const [email, setEmail] = useState(currentContact.email);
     const [address, setAddress] = useState(currentContact.address);
     const editContact = store.currentContact;
+    const navigate = useNavigate();
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -23,10 +24,10 @@ export const EditContacts = () => {
 
         actions.editContacts(editContact.id, dataToSend);
        
-        Navigate('/contacts')
+        navigate('/contacts')
     }
 
-    const handleReset = () => { Navigate('/contacts') };
+    const handleReset = () => { navigate('/contacts') };
 
     return (
         <div className="container text-secondary w-50">

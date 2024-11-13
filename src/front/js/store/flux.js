@@ -20,6 +20,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			agendas: [],
 			singleAgenda: [],
 			username: '',
+			user: '',
 			currentContact: {},
 			hostStarWars: 'https://swapi.tech/api',
 			characters: [],
@@ -29,28 +30,62 @@ const getState = ({ getStore, getActions, setStore }) => {
 			planetDetails: {},
 			starshipDetails: {},
 			favorites: [],
+			isLogged: false,
+			alert: {
+				text: 'A simple primary alert—check it out!',
+				background: 'danger',
+				visible: false
+			},
+			alerta: {
+				text: 'A simple primary alert—check it out!',
+				background: 'danger',
+				visible: false
+			},
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
-			login: async () => {
-				const uri = ``
+			login: async (dataToSend, navigate) => {
+				const uri = `${process.env.BACKEND_URL}/api/login`;
 				const options = {
 					method: 'POST',
 					headers: {
-						"Content-Type": "application/json",
+						"Content-Type": 'application/json'
+					},
 					body: JSON.stringify(dataToSend)
-					}
 				}
-				const response = await fetch(uri, options)
+				const response = await fetch(uri, options);
 				if (!response.ok) {
-					// tratamos error
-					console.log('yo que se')
+					setStore({
+						alerta: {
+							text: "Error de email o password",
+							background: 'danger',
+							visible: true
+						},
+					})
+					return
+					console.log('Error', response.status, response.statusText);
+					return;
 				}
 				const data = await response.json()
-				console.log(data)
+				console.log('estos es data results', data.results)
+
+				localStorage.setItem('token', data.access_token)
+				console.log('estos es el  data', data)
+				localStorage.setItem('user', JSON.stringify(data.results))
+				setStore({ isLogged: true, user: data.results.email })
+				console.log('estos es user', getStore().user)
+				let username = getStore().user.split("@")[0];
+				setStore({username: username})
+				localStorage.setItem('username', username)
+				if (! username) {
+					getActions().createAgenda();
+				} else {
+					getActions().getContacts();
+				}
+				navigate("/dashboard");
 			},
 			getMessage: async () => {
 				try {
@@ -78,25 +113,21 @@ const getState = ({ getStore, getActions, setStore }) => {
 				//reset the global store
 				setStore({ demo: demo });
 			},
-			getUsername: (username) => {
-				const storedUsername = localStorage.getItem('username');
-				if (storedUsername) {
-					try {
-						const localUsername = localStorage.getItem('username')
-						setStore({ username: localUsername })
-					} catch (error) {
-						console.error('Error al analizar el nombre de usuario almacenado:', error);
-						setStore({ username: '' });
-					}
-					return
-				}
-				setStore({ username: username })
-				localStorage.setItem('username', JSON.stringify(username))
-			},
-			clearUsername: () => {
-				setStore({ username: '' });
-				localStorage.removeItem('username');
-			},
+			// getUsername: () => {
+			// 	const storedUsername = localStorage.getItem('username');
+			// 	if (storedUsername) {
+			// 		try {
+			// 			const localUsername = localStorage.getItem('username')
+			// 			setStore({ username: localUsername })
+			// 		} catch (error) {
+			// 			console.error('Error al analizar el nombre de usuario almacenado:', error);
+			// 			setStore({ username: '' });
+			// 		}
+			// 		return
+			// 	}
+			// 	setStore({ username: username })
+			// 	localStorage.setItem('username', JSON.stringify(username))
+			// },
 			addFavorite: (newFavorite) => {
 				// setStore({ favorites: [...getStore().favorites, newFavorite] })
 				getStore().favorites.some(fav => fav.name === newFavorite.name && fav.type === newFavorite.type)
@@ -144,7 +175,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				setStore({ singleAgenda: data.contacts });
 				// console.log('estos son los contacts:', getStore().singleAgenda);
-
 			},
 			addContact: async (dataToSend) => {
 				// console.log('Este es el  username en add contact:', getStore().username);
@@ -319,6 +349,128 @@ const getState = ({ getStore, getActions, setStore }) => {
 				// console.log('este es el data de details starships:', data);
 				setStore({ starshipDetails: data.result.properties });
 				/* localStorage.setItem('planetsDetails:', JSON.stringify(data.results)); */
+			},
+			logout: () => {
+				setStore({ isLogged: false, user: '' });
+				localStorage.removeItem('token')
+				localStorage.removeItem('user')
+				setStore({ username: '' });
+				localStorage.removeItem('username');
+			},
+			isLogged: () => {
+				const token = localStorage.getItem('token')
+				if (token) {
+					const userData = JSON.parse(localStorage.getItem('user'));
+					console.log(userData)
+					setStore({ isLogged: true, user: userData.email })
+				}
+			},
+			accessProtected: async () => {
+				const token = localStorage.getItem('token')
+				const uri = `${process.env.BACKEND_URL}/api/protected`;
+				const options = {
+					method: 'GET',
+					headers: {
+						"Content-Type": "application/json",
+						"Authorization": `Bearer ${token}`
+					}
+				};
+				const response = await fetch(uri, options);
+				if (!response.ok) {
+					console.log('error', response.status, response.statusText);
+					return
+				}
+				const data = await response.json();
+				console.log(data);
+			},
+			getPosts: async () => {
+				const token = localStorage.getItem('token')
+				const uri = `${process.env.BACKEND_URL}/api/posts`;
+				const options = {
+					method: 'GET',
+					headers: {
+						"Content-Type": "application/json",
+						"Authorization": `Bearer ${token}`
+					}
+				};
+				const response = await fetch(uri, options);
+				if (!response.ok) {
+					if (response.status === 403) {
+						const data = await response.json()
+						setStore({
+							alert: {
+								text: "Error no puedes acceder a esto",
+								background: 'danger',
+								visible: true
+							},
+						})
+						return
+					}
+					if (response.status === 404 || response.status === 422 ) {
+						const data = await response.json()
+						setStore({
+							alert: {
+								text: "Error no puedes acceder a esto",
+								background: 'danger',
+								visible: true
+							},
+						})
+						return
+					}
+					console.log('error', response.status, response.statusText);
+					return
+				}
+				const data = await response.json();
+				console.log(data);
+			},
+			getPost: async (id) => {
+				const token = localStorage.getItem('token')
+				const uri = `${process.env.BACKEND_URL}/api/posts/${id}`;
+				const options = {
+					method: 'GET',
+					headers: {
+						"Content-Type": "application/json",
+						"Authorization": `Bearer ${token}`
+					}
+				};
+				const response = await fetch(uri, options);
+				if (!response.ok) {
+					// error 40
+					if (response.status === 403) {
+						const data = await response.json()
+						setStore({
+							alert: {
+								text: data.message,
+								background: 'danger',
+								visible: true
+							},
+						})
+						return
+					}
+					if (response.status === 404 ||  response.status === 422 ) {
+						const data = await response.json()
+						setStore({
+							alert: {
+								text: data.message,
+								background: 'danger',
+								visible: true
+							},
+						})
+						return
+					}
+					console.log('error', response.status, response.statusText);
+					return
+				}
+				const data = await response.json();
+				console.log(data);
+				const text = data.results.title
+				setStore({
+					alert: {
+						text: text,
+						background: 'info',
+						visible: true
+					},
+				})
 			},
 		}
 	};

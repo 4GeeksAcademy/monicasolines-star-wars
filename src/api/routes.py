@@ -39,6 +39,7 @@ def login():
     access_token = create_access_token(identity={'email': user.email, 'user_id': user.id})
     response_body['message'] = f'Bienvenido {email}'
     response_body['access_token'] = access_token
+    response_body['results'] = user.serialize()
     return response_body, 200
 
 # Endpoint ejemplo para saber como porteger endpoints y que requieran token para usar

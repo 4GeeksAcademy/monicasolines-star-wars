@@ -27,7 +27,7 @@ export const Contacts = () => {
         < div className="container bg-dark mb-3 pb-4" >
             <div className="navbar navbar-dark bg-dark">
                 <h1 className="text-light pt-4">
-                    {store.username ? `Contacts of ${store.username}'s agenda` : "Contacts"}
+                    {store.user ? `Contacts of ${store.user}'s agenda` : "Contacts"}
                 </h1>
                 <Link to="/add-contact">
                     <button className="btn btn-secondary mt-4">
@@ -36,9 +36,9 @@ export const Contacts = () => {
                 </Link>
 
             </div>
-            <div className="alert alert-danger m-3 d-flex justify-content-center align-content-center text-center mb-4" role="alert" style={{ visibility: alertVisible ? 'visible' : 'hidden' }}>
+            {/* <div className="alert alert-danger m-3 d-flex justify-content-center align-content-center text-center mb-4" role="alert" style={{ visibility: alertVisible ? 'visible' : 'hidden' }}>
                 You need to access to a contact first! Go to Log In and create a username or access an already existing one!
-            </div>
+            </div> */}
             <div>
                 {store.singleAgenda.map((item) => {
                     return (

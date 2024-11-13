@@ -32,16 +32,16 @@ export const AddContact = () => {
     const handleReset = () => { }
 
     useEffect(() => {
-        if (store.username.length === 0) {
+        if (store.user.length === 0) {
             setAlertVisible(true);
         }
-    }, [store.username]);
+    }, [store.user]);
 
     return (
         <div className="container text-secondary w-50">
             <div className="d-flex align-items-center justify-content-between" style={{ display: 'flex' }} >
 
-                <h1 className="text-dark pt-4"> {store.username ? `Add Contacts to ${store.username} 's agenda` : "Add Contacts to agenda"} </h1>
+                <h1 className="text-dark pt-4"> {store.user ? `Add Contacts to ${store.user} 's agenda` : "Add Contacts to agenda"} </h1>
                 <Link to="/Contacts" >
                     <button className="btn btn-secondary mt-4" >
                         Go back to contacts

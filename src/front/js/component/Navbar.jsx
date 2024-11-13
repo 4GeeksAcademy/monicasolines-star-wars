@@ -1,12 +1,24 @@
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../img/logo1.png";
 import { Context } from "../store/appContext";
 import { ButtonFavorites } from "./ButtonFavorites.jsx";
 
 export const Navbar = () => {
 	const { store, actions } = useContext(Context)
+	const navigate = useNavigate(); 
 
+	const handleLogin = () => {
+		if (store.isLogged) {
+			actions.logout();
+		} else {
+			navigate('/login');
+		}
+	}
+
+	const handleContacts = () => {
+		actions.getContacts();
+	}
 
 	return (
 		<nav className="navbar navbar-dark bg-dark" style={{ background: 'transparent' }}>
@@ -32,27 +44,22 @@ export const Navbar = () => {
 							</Link>
 						</li>
 						<li className="nav-item">
-							<Link to="/contacts" className="nav-link text-light m-3">
+							<Link to="/contacts" className="nav-link text-light m-3" onClick={handleContacts}>
 								Contacts
 							</Link>
 						</li>
 						<li className="nav-item d-flex align-content-center justify-content-center">
 							<ButtonFavorites />
 						</li>
-						<li className="nav-item">
-							{store.username.length === 0 ?
-								<Link to="/login" className="btn btn-success pe-3 ps-3 nav-link text-light m-3">
-									Log In
-								</Link>
-								:
-								<button className="btn btn-danger pe-3 ps-3 nav-link text-light m-3"
-									onClick={() => actions.clearUsername()}
-								>
-									Log out
-								</button>
-							}
-						</li>
-
+						<div className="mb-3">
+							<li className="nav-item">
+							{store.isLogged ?  <button className="btn btn-danger" onClick={handleLogin}>
+									Logout
+								</button> : <button className="btn btn-success" onClick={handleLogin}>
+									Login
+								</button>}
+							</li>
+						</div>
 					</div>
 				</ul>
 
